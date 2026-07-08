@@ -1,4 +1,5 @@
 const orderService = require("../services/order.service");
+const { getChannel, QUEUE_NAME } = require("../config/rabbitmq");
 
 const createOrder = async (req, res) => {
   try {
@@ -10,6 +11,10 @@ const createOrder = async (req, res) => {
       productId,
       quantity,
     });
+
+    const channel = getChannel();
+
+    channel.sendToQueue(QUEUE_NAME, Buffer.from(JSON.stringify(order)));
 
     return res.status(201).json({
       success: true,
