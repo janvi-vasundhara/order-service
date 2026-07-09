@@ -14,7 +14,20 @@ const createOrder = async (req, res) => {
 
     const channel = getChannel();
 
-    channel.sendToQueue(QUEUE_NAME, Buffer.from(JSON.stringify(order)));
+    const orderEvent = {
+      orderId: order._id,
+      userId: order.userId,
+      userEmail: req.user.email,
+      productId: order.productId,
+      quantity: order.quantity,
+      totalPrice: order.totalPrice,
+      status: order.status,
+      createdAt: order.createdAt,
+    };
+
+    channel.sendToQueue(QUEUE_NAME, Buffer.from(JSON.stringify(orderEvent)), {
+      persistent: true,
+    });
 
     return res.status(201).json({
       success: true,
